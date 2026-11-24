@@ -46,3 +46,5 @@ npm run build
 - **No authentication or access control**: Designed as a single browser governance prototype without login, multi-tenancy, or role enforcement.
 - **Synthetic dataset**: Uses fictional pseudonymous IDs (`SUB-1001`, etc.) and fictional organisations.
 
+## Dashboard
+<img width="1416" height="1860" alt="HDC" src="https://github.com/user-attachments/assets/7e1d4568-9f8d-4820-ab20-84612cf65270" />
