@@ -5,7 +5,6 @@
 > **Demonstration Notice:** All data in this MVP is synthetic and stored locally  via `localStorage`. It is not the actual production healthcare system and must not be used with real personal or patient records.
 ## Dashboard
 <img width="1416" height="1860" alt="HDC" src="https://github.com/user-attachments/assets/7e1d4568-9f8d-4820-ab20-84612cf65270" />
-
 ## MVP Features
 
 - **Overview Dashboard**: Dynamically calculates Total, Active, Withdrawn, and Expired consent metrics, renders an **Active Consent Rate** semicircular gauge, a **Consent Status Distribution** donut chart, a **Consent Purpose Landscape** 3D triangular prism chart, and previews the latest five consent records and recent audit activity.
