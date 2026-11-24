@@ -1,6 +1,6 @@
 # HealthDataConsent
 
-**HealthDataConsent** is an open-source Minimum Viable Product (MVP) prototype for community-controlled health-data consent management. It demonstrates how individuals and authorised community stewards can record granular permissions, withdraw consent, deterministically verify proposed data uses, and inspect a chronological audit history.
+**HealthDataConsent** is an open-source Minimum Viable Product (MVP) prototype for community controlled health data consent management. It demonstrates how individuals and authorised community stewards can record granular permissions, withdraw consent, deterministically verify proposed data uses, and inspect a chronological audit history.
 
 > **Demonstration Notice:** All data in this MVP is synthetic and stored locally  via `localStorage`. It is not the actual production healthcare system and must not be used with real personal or patient records.
 
@@ -46,5 +46,3 @@ npm run build
 - **No authentication or access control**: Designed as a single-browser governance prototype without login, multi-tenancy, or role enforcement.
 - **Synthetic dataset**: Uses fictional pseudonymous IDs (`SUB-1001`, etc.) and fictional organisations.
 
-loading.
-3. Enforce server-side authentication, role checks, and database-level append-only triggers on the audit table.
