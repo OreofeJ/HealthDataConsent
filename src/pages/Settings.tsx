@@ -18,7 +18,7 @@ export function Settings({
   const handleConfirmReset = () => {
     onResetDemoData();
     setConfirmReset(false);
-    setResetMessage('Demonstration data has been restored to the initial 8 fictional consent records.');
+    setResetMessage('Synthetic dataset restored to the default 128 fictional consent records.');
   };
 
   return (
@@ -38,9 +38,9 @@ export function Settings({
 
         <dl className="mt-5 grid gap-4 border-t border-slate-200 pt-5 sm:grid-cols-3">
           <div>
-            <dt className="text-xs font-medium text-slate-500">Environment Mode</dt>
+            <dt className="text-xs font-medium text-slate-500">Environment</dt>
             <dd className="mt-1 font-mono text-sm font-medium text-slate-900">
-              DEMO (Local Browser)
+              MVP VERSION 1
             </dd>
           </div>
           <div>
@@ -82,13 +82,13 @@ export function Settings({
         </ul>
       </section>
 
-      {/* Reset Demo Data */}
+      {/* Reset Synthetic Data */}
       <section className="rounded-xl border border-slate-200 bg-white p-6">
         <h2 className="font-display text-base font-semibold text-slate-900">
-          Demonstration Dataset Management
+          Synthetic Dataset Management
         </h2>
         <p className="mt-1.5 text-sm text-slate-600">
-          Restore the default eight fictional consent records and initial audit history.
+          Restore the default 128 fictional consent records and initial audit history.
           Any custom records or withdrawals created in this browser will be replaced.
         </p>
 
@@ -110,7 +110,7 @@ export function Settings({
               className="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600"
             >
               <RotateCcw className="h-4 w-4 text-slate-500" aria-hidden="true" />
-              Reset Demo Data
+              Reset Synthetic Data
             </button>
           </div>
         ) : (
@@ -122,11 +122,11 @@ export function Settings({
               />
               <div>
                 <p className="text-sm font-semibold text-amber-950">
-                  Confirm demonstration data reset
+                  Confirm synthetic data reset
                 </p>
                 <p className="mt-1 text-xs leading-relaxed text-amber-900">
                   This will clear your current local consent register and audit log and
-                  re-initialise the 8 fictional demonstration records.
+                  re-initialise the 128 fictional synthetic records.
                 </p>
                 <div className="mt-3 flex flex-wrap items-center gap-2.5">
                   <button

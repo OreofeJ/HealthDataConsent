@@ -6,14 +6,14 @@
 
 ## MVP Features
 
-- **Overview Dashboard**: Dynamically calculates Total, Active, Withdrawn, and Expired consent metrics, visualises lifecycle status distribution using lightweight CSS bars, previews the latest five consent records, and displays recent audit activity.
+- **Overview Dashboard**: Dynamically calculates Total, Active, Withdrawn, and Expired consent metrics, renders an **Active Consent Rate** semicircular gauge, a **Consent Status Distribution** donut chart, a **Consent Purpose Landscape** 3D triangular prism chart, and previews the latest five consent records and recent audit activity.
 - **Consent Records Register**: Searchable by Consent ID, Subject ID, or Organisation; filterable by `Active`, `Withdrawn`, and `Expired` status; sortable by granted date or expiry date; with empty-state handling.
 - **Granular Consent Creation**: Validated form capturing pseudonymous Subject ID, Organisation, Purpose, multiple Data Categories, Expiry Date (preventing past dates), Consent Notice Version, and Consent Method. Automatically creates an active record and a `CONSENT_CREATED` audit event.
 - **Consent Details & Withdrawal**: Inspect full consent metadata and related audit events. Active consents can be withdrawn after explicit confirmation, updating status to `Withdrawn`, recording a withdrawal timestamp, preserving the original record, and logging a `CONSENT_WITHDRAWN` audit event.
 - **Automatic Expiry Detection**: Consents whose expiry date has passed are automatically evaluated as `Expired` (with `CONSENT_EXPIRED` logged) and are never approved during verification.
 - **Deterministic Fail-Closed Verification**: Evaluates Subject ID, Organisation, Purpose, Data Category, Active status, and non-expired date to return `APPROVED`, `DENIED`, or `REVIEW` (for incomplete or ambiguous requests), logging every check to the Audit Trail.
 - **Append-Only Audit Trail**: Chronological, searchable, and filterable log of `CONSENT_CREATED`, `CONSENT_WITHDRAWN`, `CONSENT_VERIFIED`, and `CONSENT_EXPIRED` events without edit or delete actions.
-- **Demo Data Controls**: Seeds 8 fictional consent records once on first launch and provides a confirmed **Reset Demo Data** action in Settings.
+- **Synthetic Dataset Controls**: Seeds 128 fictional consent records (8 initial records + 120 synthetic records via a one-time persistent migration) and provides a confirmed **Reset Synthetic Data** action in Settings.
 
 ## Technology Used
 

@@ -31,9 +31,9 @@ export function Header({ title, description, onOpenMobileMenu }: HeaderProps) {
         <div className="flex shrink-0 items-center gap-3">
           <span
             className="inline-flex items-center rounded-md border border-slate-200 bg-slate-100 px-2.5 py-1 font-mono text-[11px] font-semibold tracking-wider text-slate-700 whitespace-nowrap shrink-0"
-            title="Demonstration environment using synthetic local data"
+            title="HealthDataConsent MVP Version 1 — local synthetic environment"
           >
-            DEMO
+            MVP VERSION 1
           </span>
 
           <div className="flex items-center gap-2.5 border-l border-slate-200 pl-3">

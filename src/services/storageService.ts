@@ -1,8 +1,86 @@
-import { AuditEvent, Consent } from '../types/consent';
+import {
+  AuditEvent,
+  CONSENT_PURPOSES,
+  Consent,
+  ConsentPurpose,
+  ConsentStatus,
+  DATA_CATEGORIES,
+  DataCategory,
+} from '../types/consent';
 
 const CONSENTS_KEY = 'hdc_consents_v1';
 const AUDIT_EVENTS_KEY = 'hdc_audit_events_v1';
 const DEMO_INITIALIZED_KEY = 'hdc_demo_initialized_v1';
+const MIGRATION_120_KEY = 'hdc_seed_120_migrated_v1';
+
+const FICTIONAL_ORGANISATIONS = [
+  'Northbridge Health Research Trust',
+  'Civic Mental Health Collaborative',
+  'Harbourview Public Health Lab',
+  'Midland Genomics Consortium',
+  'OpenBiomed Data Commons',
+  'Regional Epidemiology Institute',
+  'CareMetrics Analytics Group',
+  'Community Wellness Observatory',
+  'Alderbrook Clinical Data Trust',
+  'St. Jude Community Health Network',
+  'Northern Population Health Archive',
+  'Bridgewater Longitudinal Study Group',
+] as const;
+
+const CONSENT_METHODS = [
+  'Explicit digital consent',
+  'Explicit digital consent',
+  'Signed community steward form',
+  'Clinic intake digital consent',
+] as const;
+
+const NOTICE_VERSIONS = ['1.0', '1.1', '1.2', '1.3', '2.0'] as const;
+
+// Exact distribution across the 6 existing purposes summing to 120 records:
+// Research (26 + 18 + 24 = 68), AI Development (18), Data Analysis & Commercial (20 + 14 = 34)
+const PURPOSE_SCHEDULE: ConsentPurpose[] = [
+  ...Array<ConsentPurpose>(26).fill('Academic research'),
+  ...Array<ConsentPurpose>(18).fill('Mental-health research'),
+  ...Array<ConsentPurpose>(24).fill('Public-health research'),
+  ...Array<ConsentPurpose>(18).fill('AI model development'),
+  ...Array<ConsentPurpose>(20).fill('Anonymous statistical analysis'),
+  ...Array<ConsentPurpose>(14).fill('Commercial research'),
+];
+
+const CATEGORIES_BY_PURPOSE: Record<ConsentPurpose, DataCategory[][]> = {
+  'Academic research': [
+    ['Demographic information', 'Health records'],
+    ['Health records', 'Genomic information', 'Survey responses'],
+    ['Demographic information', 'Health records', 'Survey responses'],
+    ['Health records', 'Other research data'],
+  ],
+  'Mental-health research': [
+    ['Mental-health information', 'Survey responses'],
+    ['Demographic information', 'Mental-health information'],
+    ['Mental-health information', 'Health records', 'Survey responses'],
+  ],
+  'Public-health research': [
+    ['Demographic information', 'Health records', 'Location information'],
+    ['Demographic information', 'Location information', 'Survey responses'],
+    ['Health records', 'Survey responses', 'Other research data'],
+  ],
+  'AI model development': [
+    ['Health records', 'Other research data'],
+    ['Demographic information', 'Health records', 'Other research data'],
+    ['Health records', 'Mental-health information', 'Other research data'],
+  ],
+  'Anonymous statistical analysis': [
+    ['Demographic information', 'Survey responses'],
+    ['Demographic information', 'Location information', 'Survey responses'],
+    ['Survey responses', 'Other research data'],
+  ],
+  'Commercial research': [
+    ['Demographic information', 'Health records'],
+    ['Health records', 'Genomic information'],
+    ['Survey responses', 'Other research data'],
+  ],
+};
 
 function toLocalYmd(date: Date): string {
   const year = date.getFullYear();
@@ -15,6 +93,32 @@ function addDays(base: Date, days: number): Date {
   const copy = new Date(base);
   copy.setDate(copy.getDate() + days);
   return copy;
+}
+
+function extractMaxNumericSuffix(items: { id: string }[], prefix: string, floor: number): number {
+  let maxVal = floor;
+  const pattern = new RegExp(`^${prefix}-(\\d+)$`);
+  for (const item of items) {
+    const match = pattern.exec(item.id);
+    if (match) {
+      const num = parseInt(match[1], 10);
+      if (num > maxVal) maxVal = num;
+    }
+  }
+  return maxVal;
+}
+
+function extractMaxSubjectSuffix(items: Consent[], floor: number): number {
+  let maxVal = floor;
+  const pattern = /^SUB-(\d+)$/;
+  for (const item of items) {
+    const match = pattern.exec(item.subjectId);
+    if (match) {
+      const num = parseInt(match[1], 10);
+      if (num > maxVal) maxVal = num;
+    }
+  }
+  return maxVal;
 }
 
 function createSeedDataset(): { consents: Consent[]; auditEvents: AuditEvent[] } {
@@ -260,6 +364,156 @@ function createSeedDataset(): { consents: Consent[]; auditEvents: AuditEvent[] }
   return { consents, auditEvents };
 }
 
+function createAdditional120SyntheticRecords(
+  existingConsents: Consent[],
+  existingAuditEvents: AuditEvent[],
+): { consents: Consent[]; auditEvents: AuditEvent[] } {
+  const now = new Date();
+  const d = (offsetDays: number) => toLocalYmd(addDays(now, offsetDays));
+  const iso = (offsetDays: number, hour: number, minute: number) => {
+    const dt = addDays(now, offsetDays);
+    dt.setHours(hour, minute, 0, 0);
+    return dt.toISOString();
+  };
+
+  let nextConsentNum = extractMaxNumericSuffix(existingConsents, 'CNS', 1008) + 1;
+  let nextSubjectNum = extractMaxSubjectSuffix(existingConsents, 1008) + 1;
+  let nextAuditNum = extractMaxNumericSuffix(existingAuditEvents, 'AUD', 1013) + 1;
+
+  const newConsents: Consent[] = [];
+  const newAuditEvents: AuditEvent[] = [];
+
+  for (let i = 0; i < 120; i += 1) {
+    // Spread purpose deterministically using coprime stride across PURPOSE_SCHEDULE (120 items)
+    const scheduleIndex = (i * 7) % PURPOSE_SCHEDULE.length;
+    const purpose = PURPOSE_SCHEDULE[scheduleIndex] ?? CONSENT_PURPOSES[i % CONSENT_PURPOSES.length];
+
+    const categoryPresets = CATEGORIES_BY_PURPOSE[purpose];
+    const baseCategories = categoryPresets[i % categoryPresets.length];
+    const dataCategories: DataCategory[] =
+      i % 11 === 0 && !baseCategories.includes(DATA_CATEGORIES[i % DATA_CATEGORIES.length])
+        ? [...baseCategories, DATA_CATEGORIES[i % DATA_CATEGORIES.length]]
+        : [...baseCategories];
+
+    // Status mixture across 120 records: 78 Active (~65%), 22 Withdrawn (~18.3%), 20 Expired (~16.7%)
+    let status: ConsentStatus = 'Active';
+    if (i % 6 === 2) {
+      status = 'Expired';
+    } else if (i % 5 === 4) {
+      status = 'Withdrawn';
+    }
+
+    const organisation = FICTIONAL_ORGANISATIONS[(i * 5 + 3) % FICTIONAL_ORGANISATIONS.length];
+    const method = CONSENT_METHODS[i % CONSENT_METHODS.length];
+    const noticeVersion = NOTICE_VERSIONS[i % NOTICE_VERSIONS.length];
+
+    const consentId = `CNS-${nextConsentNum++}`;
+    const subjectId = `SUB-${nextSubjectNum++}`;
+
+    const hour = 8 + (i % 10);
+    const minute = (i * 7) % 60;
+
+    let grantedOffsetDays: number;
+    let expiryOffsetDays: number;
+    let withdrawnAt: string | undefined;
+
+    if (status === 'Active') {
+      grantedOffsetDays = -((i * 3) % 175) - 3; // 3 to 177 days ago
+      expiryOffsetDays = ((i * 11) % 360) + 30; // 30 to 389 days in future
+    } else if (status === 'Withdrawn') {
+      grantedOffsetDays = -((i * 4) % 210) - 45; // 45 to 254 days ago
+      expiryOffsetDays = ((i * 9) % 280) + 40; // originally granted for future expiry
+      const withdrawnOffsetDays = -Math.max(2, Math.floor(Math.abs(grantedOffsetDays) / 3));
+      withdrawnAt = iso(withdrawnOffsetDays, (hour + 2) % 24, (minute + 17) % 60);
+    } else {
+      // Expired: expiry date strictly in the past
+      expiryOffsetDays = -((i * 5) % 165) - 6; // 6 to 170 days in past
+      grantedOffsetDays = expiryOffsetDays - 365;
+    }
+
+    const createdAt = iso(grantedOffsetDays, hour, minute);
+
+    const consent: Consent = {
+      id: consentId,
+      subjectId,
+      organisation,
+      purpose,
+      dataCategories,
+      status,
+      dateGranted: d(grantedOffsetDays),
+      expiryDate: d(expiryOffsetDays),
+      noticeVersion,
+      method,
+      createdAt,
+      ...(withdrawnAt ? { withdrawnAt } : {}),
+    };
+
+    newConsents.push(consent);
+
+    // 1. Creation audit event
+    newAuditEvents.push({
+      id: `AUD-${nextAuditNum++}`,
+      consentId,
+      subjectId,
+      eventType: 'CONSENT_CREATED',
+      timestamp: createdAt,
+      actor: 'Community Steward',
+      description: `Recorded active consent for ${organisation} (${purpose}).`,
+    });
+
+    // 2. Lifecycle audit event for Withdrawn or Expired records
+    if (status === 'Withdrawn' && withdrawnAt) {
+      newAuditEvents.push({
+        id: `AUD-${nextAuditNum++}`,
+        consentId,
+        subjectId,
+        eventType: 'CONSENT_WITHDRAWN',
+        timestamp: withdrawnAt,
+        actor: `Data Subject (${subjectId})`,
+        description: `Consent withdrawn for ${organisation} (${purpose}).`,
+      });
+    } else if (status === 'Expired') {
+      newAuditEvents.push({
+        id: `AUD-${nextAuditNum++}`,
+        consentId,
+        subjectId,
+        eventType: 'CONSENT_EXPIRED',
+        timestamp: iso(expiryOffsetDays, 0, 5),
+        actor: 'Policy Expiry Check',
+        description: `Consent reached expiry date (${consent.expiryDate}) and transitioned to Expired.`,
+      });
+    }
+
+    // 3. Synthetic verification events on select records
+    if (i % 10 === 0) {
+      const verifyOffset = status === 'Active' ? Math.max(grantedOffsetDays + 1, -14) : grantedOffsetDays + 5;
+      newAuditEvents.push({
+        id: `AUD-${nextAuditNum++}`,
+        consentId,
+        subjectId,
+        eventType: 'CONSENT_VERIFIED',
+        timestamp: iso(verifyOffset, 14, (minute + 11) % 60),
+        actor: 'Verification Gateway',
+        description: `Verification APPROVED for ${organisation} (${purpose} · ${dataCategories[0]}).`,
+        verificationOutcome: 'APPROVED',
+      });
+    } else if (status === 'Withdrawn' && i % 15 === 4) {
+      newAuditEvents.push({
+        id: `AUD-${nextAuditNum++}`,
+        consentId,
+        subjectId,
+        eventType: 'CONSENT_VERIFIED',
+        timestamp: iso(-1, 11, (minute + 9) % 60),
+        actor: 'Verification Gateway',
+        description: `Verification DENIED for ${organisation} (${purpose} · ${dataCategories[0]}). Matching consent ${consentId} was withdrawn.`,
+        verificationOutcome: 'DENIED',
+      });
+    }
+  }
+
+  return { consents: newConsents, auditEvents: newAuditEvents };
+}
+
 function safeReadJson<T>(key: string, fallback: T): T {
   try {
     const raw = window.localStorage.getItem(key);
@@ -283,6 +537,20 @@ export const storageService = {
       safeWriteJson(AUDIT_EVENTS_KEY, seed.auditEvents);
       window.localStorage.setItem(DEMO_INITIALIZED_KEY, 'true');
     }
+
+    // One-time migration adding 120 synthetic records without overwriting existing or user-created records
+    const hasMigrated120 = window.localStorage.getItem(MIGRATION_120_KEY);
+    if (!hasMigrated120) {
+      const existingConsents = safeReadJson<Consent[]>(CONSENTS_KEY, []);
+      const existingAuditEvents = safeReadJson<AuditEvent[]>(AUDIT_EVENTS_KEY, []);
+      const batch = createAdditional120SyntheticRecords(
+        existingConsents,
+        existingAuditEvents,
+      );
+      safeWriteJson(CONSENTS_KEY, [...existingConsents, ...batch.consents]);
+      safeWriteJson(AUDIT_EVENTS_KEY, [...existingAuditEvents, ...batch.auditEvents]);
+      window.localStorage.setItem(MIGRATION_120_KEY, 'true');
+    }
   },
 
   getConsents(): Consent[] {
@@ -304,9 +572,11 @@ export const storageService = {
   },
 
   resetToDemoData(): void {
-    const seed = createSeedDataset();
-    safeWriteJson(CONSENTS_KEY, seed.consents);
-    safeWriteJson(AUDIT_EVENTS_KEY, seed.auditEvents);
+    const base = createSeedDataset();
+    const batch = createAdditional120SyntheticRecords(base.consents, base.auditEvents);
+    safeWriteJson(CONSENTS_KEY, [...base.consents, ...batch.consents]);
+    safeWriteJson(AUDIT_EVENTS_KEY, [...base.auditEvents, ...batch.auditEvents]);
     window.localStorage.setItem(DEMO_INITIALIZED_KEY, 'true');
+    window.localStorage.setItem(MIGRATION_120_KEY, 'true');
   },
 };
