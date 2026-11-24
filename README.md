@@ -39,23 +39,12 @@ npm run lint
 npm run build
 ```
 
-## Current Limitations
+## Important Notes
 
 - **Client-side storage only**: Data lives in browser `localStorage` and does not sync across devices or users.
 - **Application-level audit log**: Append-only within the UI, but not cryptographically signed or tamper-proof because browser storage can be cleared locally.
 - **No authentication or access control**: Designed as a single-browser governance prototype without login, multi-tenancy, or role enforcement.
 - **Synthetic dataset**: Uses fictional pseudonymous IDs (`SUB-1001`, etc.) and fictional organisations.
 
-## Extending with FastAPI & PostgreSQL
-
-Business rules, validation, expiry evaluation, and verification logic are separated from React UI components inside `src/services/`:
-
-- `src/types/consent.ts`: Domain models (`Consent`, `AuditEvent`, `VerificationRequest`, `VerificationResult`).
-- `src/services/storageService.ts`: Persistence adapter currently backed by `localStorage`.
-- `src/services/consentService.ts`: Creation validation, expiry status computation, withdrawal, and verification.
-- `src/services/auditService.ts`: Append-only audit event recording and querying.
-
-To migrate to a **FastAPI + PostgreSQL** backend without redesigning the UI:
-1. Expose REST endpoints in FastAPI (`/api/consents`, `/api/consents/{id}/withdraw`, `/api/verify`, `/api/audit-events`) backed by PostgreSQL tables for consents and immutable audit logs.
-2. Replace synchronous `storageService` calls inside `consentService.ts` and `auditService.ts` with `fetch` requests to the FastAPI API and convert UI handlers to async data loading.
+loading.
 3. Enforce server-side authentication, role checks, and database-level append-only triggers on the audit table.
