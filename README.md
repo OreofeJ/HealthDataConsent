@@ -39,10 +39,10 @@ npm run lint
 npm run build
 ```
 
-## Important Notes
+## Important Notes Regarding this MVP
 
-- **Client-side storage only**: Data lives in browser `localStorage` and does not sync across devices or users.
-- **Application-level audit log**: Append-only within the UI, but not cryptographically signed or tamper-proof because browser storage can be cleared locally.
-- **No authentication or access control**: Designed as a single-browser governance prototype without login, multi-tenancy, or role enforcement.
+- **Client-side storage only**: Data lives in `localStorage` and does not sync across devices or users.
+- **Application-level audit log**: Append only within the UI, but not cryptographically signed or tamper-proof because browser storage can be cleared locally.
+- **No authentication or access control**: Designed as a single browser governance prototype without login, multi-tenancy, or role enforcement.
 - **Synthetic dataset**: Uses fictional pseudonymous IDs (`SUB-1001`, etc.) and fictional organisations.
 
