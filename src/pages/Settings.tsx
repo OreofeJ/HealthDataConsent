@@ -29,10 +29,10 @@ export function Settings({
           About HealthDataConsent
         </h2>
         <p className="mt-2 text-sm leading-relaxed text-slate-600">
-          HealthDataConsent is an open-source prototype demonstrating community-controlled
-          health-data consent governance. It enables individuals and community stewards to
+          HealthDataConsent is an open-source prototype demonstrating community controlled
+          health data consent governance. It enables individuals and community stewards to
           record granular, purpose-bound data permissions, withdraw active consent at any
-          time, deterministically verify proposed data uses, and inspect a chronological
+          time, verify proposed data uses, and inspect a chronological
           audit log.
         </p>
 
@@ -69,15 +69,13 @@ export function Settings({
             fictional pseudonymous Subject IDs and organisations.
           </li>
           <li>
-            State is persisted locally in your browser via <span className="font-mono text-xs">localStorage</span> and
+            State is persisted locally via <span className="font-mono text-xs">localStorage</span> and
             isolated behind service modules (<span className="font-mono text-xs">consentService</span>,{' '}
             <span className="font-mono text-xs">auditService</span>, <span className="font-mono text-xs">storageService</span>)
-            so a FastAPI and PostgreSQL backend can replace local persistence cleanly in a
-            future version.
-          </li>
+                     </li>
           <li>
-            This MVP intentionally excludes authentication, external APIs, and production
-            healthcare infrastructure. Do not enter real personal or patient health data.
+            Our MVP intentionally excludes authentication, external APIs, and production
+            healthcare infrastructure. Please, do not enter real personal or patient health data.
           </li>
         </ul>
       </section>

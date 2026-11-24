@@ -111,7 +111,7 @@ export function Sidebar({
       <div className="border-t border-white/10 px-5 py-4">
         <p className="text-xs font-medium text-slate-300">Open-Source MVP</p>
         <p className="mt-0.5 text-[11px] leading-relaxed text-slate-400">
-          Synthetic data stored locally in your browser.
+          Synthetic data only.
         </p>
       </div>
     </div>

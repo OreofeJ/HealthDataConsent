@@ -384,7 +384,7 @@ function createAdditional120SyntheticRecords(
   const newAuditEvents: AuditEvent[] = [];
 
   for (let i = 0; i < 120; i += 1) {
-    // Spread purpose deterministically using coprime stride across PURPOSE_SCHEDULE (120 items)
+    // Spread purpose using coprime stride across PURPOSE_SCHEDULE (120 items)
     const scheduleIndex = (i * 7) % PURPOSE_SCHEDULE.length;
     const purpose = PURPOSE_SCHEDULE[scheduleIndex] ?? CONSENT_PURPOSES[i % CONSENT_PURPOSES.length];
 

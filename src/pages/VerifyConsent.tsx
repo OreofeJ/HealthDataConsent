@@ -92,7 +92,7 @@ export function VerifyConsent({
             Check Proposed Data Use
           </h2>
           <p className="mt-1 text-xs leading-relaxed text-slate-500">
-            Deterministically verify whether an active, non-expired consent covers the
+            Verify whether an active, non-expired consent covers the
             proposed subject, organisation, purpose, and data category. Incomplete requests
             fail closed for human review.
           </p>
@@ -235,7 +235,7 @@ export function VerifyConsent({
         </form>
       </section>
 
-      {/* Deterministic Decision Panel */}
+      {/* Decision Panel */}
       <section
         aria-labelledby="verify-result-heading"
         className="rounded-xl border border-slate-200 bg-white p-6 lg:col-span-6"

@@ -2,7 +2,7 @@
 
 **HealthDataConsent** is an open-source Minimum Viable Product (MVP) prototype for community-controlled health-data consent management. It demonstrates how individuals and authorised community stewards can record granular permissions, withdraw consent, deterministically verify proposed data uses, and inspect a chronological audit history.
 
-> **Demonstration Notice:** All data in this MVP is synthetic and stored locally in your browser via `localStorage`. It is not a production healthcare system and must not be used with real personal or patient records.
+> **Demonstration Notice:** All data in this MVP is synthetic and stored locally  via `localStorage`. It is not the actual production healthcare system and must not be used with real personal or patient records.
 
 ## MVP Features
 
@@ -11,9 +11,9 @@
 - **Granular Consent Creation**: Validated form capturing pseudonymous Subject ID, Organisation, Purpose, multiple Data Categories, Expiry Date (preventing past dates), Consent Notice Version, and Consent Method. Automatically creates an active record and a `CONSENT_CREATED` audit event.
 - **Consent Details & Withdrawal**: Inspect full consent metadata and related audit events. Active consents can be withdrawn after explicit confirmation, updating status to `Withdrawn`, recording a withdrawal timestamp, preserving the original record, and logging a `CONSENT_WITHDRAWN` audit event.
 - **Automatic Expiry Detection**: Consents whose expiry date has passed are automatically evaluated as `Expired` (with `CONSENT_EXPIRED` logged) and are never approved during verification.
-- **Deterministic Fail-Closed Verification**: Evaluates Subject ID, Organisation, Purpose, Data Category, Active status, and non-expired date to return `APPROVED`, `DENIED`, or `REVIEW` (for incomplete or ambiguous requests), logging every check to the Audit Trail.
+- **Fail-Closed Verification**: Evaluates Subject ID, Organisation, Purpose, Data Category, Active status, and non-expired date to return `APPROVED`, `DENIED`, or `REVIEW` (for incomplete or ambiguous requests), logging every check to the Audit Trail.
 - **Append-Only Audit Trail**: Chronological, searchable, and filterable log of `CONSENT_CREATED`, `CONSENT_WITHDRAWN`, `CONSENT_VERIFIED`, and `CONSENT_EXPIRED` events without edit or delete actions.
-- **Synthetic Dataset Controls**: Seeds 128 fictional consent records (8 initial records + 120 synthetic records via a one-time persistent migration) and provides a confirmed **Reset Synthetic Data** action in Settings.
+- **Synthetic Dataset Controls**: Seeds  fictional consent records and provides a confirmed **Reset Synthetic Data** action in Settings.
 
 ## Technology Used
 
@@ -52,7 +52,7 @@ Business rules, validation, expiry evaluation, and verification logic are separa
 
 - `src/types/consent.ts`: Domain models (`Consent`, `AuditEvent`, `VerificationRequest`, `VerificationResult`).
 - `src/services/storageService.ts`: Persistence adapter currently backed by `localStorage`.
-- `src/services/consentService.ts`: Creation validation, expiry status computation, withdrawal, and deterministic verification.
+- `src/services/consentService.ts`: Creation validation, expiry status computation, withdrawal, and verification.
 - `src/services/auditService.ts`: Append-only audit event recording and querying.
 
 To migrate to a **FastAPI + PostgreSQL** backend without redesigning the UI:

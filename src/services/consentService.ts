@@ -303,7 +303,7 @@ export const consentService = {
       };
     }
 
-    // 2. Deterministic evaluation against synced records
+    // 2. Evaluation against synced records
     const allConsents = this.syncExpiredConsents();
     const subjectMatches = allConsents.filter(
       (c) => c.subjectId.toLowerCase() === subjectId.toLowerCase(),
