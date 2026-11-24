@@ -1,0 +1,6 @@
+{
+  "name": "HealthDataConsent",
+  "description": "Open-source prototype for community-controlled health-data consent management, verification, and auditability.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
